@@ -1,31 +1,33 @@
 Role Name
 =========
 
-A brief description of the role goes here.
+An Ansible role for configuring hostmount for the OpenShift logging elasticsearch database.
+
+Installation
+------------
+
+```
+ansible-galaxy install https://github.com/jkupferer/ansible-role-openshift-logging-elasticsearch-hostmount/archive/master.tar.gz#/openshift-logging-elasticsearch-hostmount
+```
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+OCP 3.3 or 3.4
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+* `openshift_hosted_logging_elasticsearch_hostmount_path` - Host path for elasticsearch
 
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+* `openshift_hosted_logging_elasticsearch_nodeselector` - Node selector for cassandra placement
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
+    - hosts: masters[0]
       roles:
-         - { role: username.rolename, x: 42 }
+         - role: openshift-logging-elasticsearch-hostmount
 
 License
 -------
@@ -35,4 +37,4 @@ BSD
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Johnathan Kupferer (jkupfere@redhat.com)
