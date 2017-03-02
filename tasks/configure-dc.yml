@@ -1,0 +1,38 @@
+- name: Get current hostame node selector for dc {{ elasticsearch_dc }}
+  command: >
+    oc get dc -n logging {{ elasticsearch_dc }}
+    --template '{{ '{{ range $k, $v := .spec.template.spec.nodeSelector }}{{ $k }}={{ $v }}{{ "\n" }}{{ end }}' }}'
+  changed_when: false
+  register: get_current_node_selector
+
+- name: Check for hostmount for deploymentconfig {{ elasticsearch_dc }}
+  shell: >
+    oc volumes dc/{{ elasticsearch_dc }} -n logging --name=elasticsearch-storage
+    | grep "empty dir"
+  failed_when: false
+  changed_when: false
+  register: check_hostmount_required
+
+
+
+#- when: check_hostmount_required.rc == 0 or 'kubernetes.io/hostname=' not in get_current_node_selector.stdout
+#  block:
+#
+#  - name: Scale down {{ elasticsearch_dc }} prior to changes
+#    command: oc scale -n logging dc {{ elasticsearch_dc }} --replicas=0
+#
+#  - include: bind-dc-to-node.yml
+#    vars:
+#      elasticsearch_node: "{{ openshift_hosted_logging_elasticsearch_hostmount_available_nodes[0] }}"
+#    static: no
+#    when: "'kubernetes.io/hostname=' not in get_current_node_selector.stdout"
+#
+#  - set_fact:
+#      openshift_hosted_logging_elasticsearch_hostmount_available_nodes: "{{ openshift_hosted_logging_elasticsearch_hostmount_available_nodes | difference([openshift_hosted_logging_elasticsearch_hostmount_available_nodes[0]]) }}"
+#
+#  - include: configure-hostmount.yml
+#    static: no
+#    when: check_hostmount_required.rc == 0
+#
+#  - name: Scale upn {{ elasticsearch_dc }}
+#    command: oc scale -n logging dc {{ elasticsearch_dc }} --replicas=1

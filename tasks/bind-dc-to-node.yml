@@ -1,0 +1,10 @@
+- name: Patch dc {{ elasticsearch_dc }} run only on {{ elasticsearch_node }}
+  command: >
+    oc patch dc -n logging {{ elasticsearch_dc }} -p {{ patch | to_json | quote }}
+  vars:
+    patch:
+      spec:
+        template:
+          spec:
+            nodeSelector:
+              kubernetes.io/hostname: "{{ elasticsearch_node }}"

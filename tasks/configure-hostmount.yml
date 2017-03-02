@@ -1,0 +1,19 @@
+- name: Patch elasticsearch dc {{ elasticsearch_dc }} to run privileged container
+  command: >
+    oc patch dc -n logging {{ elasticsearch_dc }}
+    -p {{ patch | to_json | quote }}
+  vars:
+    patch:
+      spec:
+        template:
+          spec:
+            containers:
+            - name: elasticsearch
+              securityContext:
+                privileged: true
+
+- name: Add hostPath volume to elasticsearch dc {{ elasticsearch_dc }}
+  command: >
+    oc set volume -n logging dc/{{ elasticsearch_dc }}
+    --add --overwrite --name=cassandra-data
+    --type=hostPath --path={{ openshift_hosted_logging_elasticsearch_hostmount_path }}

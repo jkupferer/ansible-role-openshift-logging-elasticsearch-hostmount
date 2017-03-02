@@ -1,0 +1,11 @@
+- name: Get users with securitycontextconstraints privileged
+  command: oc get securitycontextconstraints privileged --template '{{ '{{ range .users }}{{ . }}{{ "\n" }}{{ end }}' }}'
+  register: get_securitycontextconstraints_privileged
+  changed_when: false
+
+- name: Add privileged scc to service account aggregated-logging-elasticsearch
+  command: >
+    oc adm policy add-scc-to-user privileged
+    system:serviceaccount:logging:aggregated-logging-elasticsearch
+  when: "'system:serviceaccount:logging:aggregated-logging-elasticsearch' not in get_securitycontextconstraints_privileged.stdout_lines"
+

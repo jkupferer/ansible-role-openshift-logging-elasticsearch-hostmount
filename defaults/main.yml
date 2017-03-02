@@ -1,0 +1,9 @@
+---
+# Default location for the cassandra hostmount
+openshift_hosted_logging_elasticsearch_hostmount_path: /srv/openshift-hostmount-elasticsearch
+
+# Default nodeselector for elasticsearch
+openshift_hosted_logging_elasticsearch_nodeselector: region=elasticsearch
+
+# Default number of elasticsearch replicas
+openshift_hosted_logging_elasticsearch_cluster_size: 1
