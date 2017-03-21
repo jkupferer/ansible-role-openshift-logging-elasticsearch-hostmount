@@ -13,26 +13,24 @@
   changed_when: false
   register: check_hostmount_required
 
+- when: check_hostmount_required.rc == 0 or 'kubernetes.io/hostname=' not in get_current_node_selector.stdout
+  block:
 
+  - name: Scale down {{ elasticsearch_dc }} prior to changes
+    command: oc scale -n logging dc {{ elasticsearch_dc }} --replicas=0
 
-#- when: check_hostmount_required.rc == 0 or 'kubernetes.io/hostname=' not in get_current_node_selector.stdout
-#  block:
-#
-#  - name: Scale down {{ elasticsearch_dc }} prior to changes
-#    command: oc scale -n logging dc {{ elasticsearch_dc }} --replicas=0
-#
-#  - include: bind-dc-to-node.yml
-#    vars:
-#      elasticsearch_node: "{{ openshift_hosted_logging_elasticsearch_hostmount_available_nodes[0] }}"
-#    static: no
-#    when: "'kubernetes.io/hostname=' not in get_current_node_selector.stdout"
-#
-#  - set_fact:
-#      openshift_hosted_logging_elasticsearch_hostmount_available_nodes: "{{ openshift_hosted_logging_elasticsearch_hostmount_available_nodes | difference([openshift_hosted_logging_elasticsearch_hostmount_available_nodes[0]]) }}"
-#
-#  - include: configure-hostmount.yml
-#    static: no
-#    when: check_hostmount_required.rc == 0
-#
-#  - name: Scale upn {{ elasticsearch_dc }}
-#    command: oc scale -n logging dc {{ elasticsearch_dc }} --replicas=1
+  - include: bind-dc-to-node.yml
+    vars:
+      elasticsearch_node: "{{ openshift_hosted_logging_elasticsearch_hostmount_available_nodes[0] }}"
+    static: no
+    when: "'kubernetes.io/hostname=' not in get_current_node_selector.stdout"
+
+  - set_fact:
+      openshift_hosted_logging_elasticsearch_hostmount_available_nodes: "{{ openshift_hosted_logging_elasticsearch_hostmount_available_nodes | difference([openshift_hosted_logging_elasticsearch_hostmount_available_nodes[0]]) }}"
+
+  - include: configure-hostmount.yml
+    static: no
+    when: check_hostmount_required.rc == 0
+
+  - name: Scale up {{ elasticsearch_dc }}
+    command: oc scale -n logging dc {{ elasticsearch_dc }} --replicas=1
