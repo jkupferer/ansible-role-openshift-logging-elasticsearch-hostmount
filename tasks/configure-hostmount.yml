@@ -15,5 +15,5 @@
 - name: Add hostPath volume to elasticsearch dc {{ elasticsearch_dc }}
   command: >
     oc set volume -n logging dc/{{ elasticsearch_dc }}
-    --add --overwrite --name=cassandra-data
+    --add --overwrite --name=elasticsearch-storage
     --type=hostPath --path={{ openshift_hosted_logging_elasticsearch_hostmount_path }}
