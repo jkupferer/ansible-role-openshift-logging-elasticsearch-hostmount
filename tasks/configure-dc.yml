@@ -34,3 +34,6 @@
 
   - name: Scale up {{ elasticsearch_dc }}
     command: oc scale -n logging dc {{ elasticsearch_dc }} --replicas=1
+
+  - name: Roll out new elasticsearch dc {{ elasticsearch_dc }}
+    command: oc rollout latest -n logging {{ elasticsearch_dc }}
