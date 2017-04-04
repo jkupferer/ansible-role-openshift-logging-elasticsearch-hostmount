@@ -15,9 +15,9 @@
     state: directory
     path: "{{ openshift_hosted_logging_elasticsearch_hostmount_path }}"
     recurse: yes
-    owner: root
-    group: root
-    mode: u=rwx,g=rwx,o=rwx
+    owner: "{{ openshift_hosted_logging_elasticsearch_hostmount_path_owner }}"
+    group: "{{ openshift_hosted_logging_elasticsearch_hostmount_path_group }}"
+    mode: "{{ openshift_hosted_logging_elasticsearch_hostmount_path_mode }}"
   with_items: "{{ get_elasticsearch_nodes.stdout_lines }}"
 
 - name: Get list of elasticsearch nodes with hostmount

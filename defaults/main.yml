@@ -2,6 +2,11 @@
 # Default location for the cassandra hostmount
 openshift_hosted_logging_elasticsearch_hostmount_path: /srv/openshift-hostmount-elasticsearch
 
+# Security settings on hostmount path
+openshift_hosted_logging_elasticsearch_hostmount_path_owner: root
+openshift_hosted_logging_elasticsearch_hostmount_path_group: root
+openshift_hosted_logging_elasticsearch_hostmount_path_mode: u=rwx,g=rwx,o=rwx
+
 # Default nodeselector for elasticsearch
 openshift_hosted_logging_elasticsearch_nodeselector: region=elasticsearch
 
