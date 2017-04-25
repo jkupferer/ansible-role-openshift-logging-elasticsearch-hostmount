@@ -14,7 +14,6 @@
   file:
     state: directory
     path: "{{ openshift_hosted_logging_elasticsearch_hostmount_path }}"
-    recurse: yes
     owner: "{{ openshift_hosted_logging_elasticsearch_hostmount_path_owner }}"
     group: "{{ openshift_hosted_logging_elasticsearch_hostmount_path_group }}"
     mode: "{{ openshift_hosted_logging_elasticsearch_hostmount_path_mode }}"
