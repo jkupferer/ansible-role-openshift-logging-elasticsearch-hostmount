@@ -1,11 +1,71 @@
-- name: Get users with securitycontextconstraints privileged
-  command: oc get securitycontextconstraints privileged --template '{{ '{{ range .users }}{{ . }}{{ "\n" }}{{ end }}' }}'
-  register: get_securitycontextconstraints_privileged
+- name: Get SecurityContextConstraint logging-elasticsearch
+  command: >
+    oc export scc logging-elasticsearch -o json
+  register: get_scc
+  changed_when: false
+  failed_when: false
+
+- name: Apply SecurityContextConstraint logging-elasticsearch
+  shell: >
+    echo {{ scc_definition | to_json | quote }} | oc apply -f -
+  vars:
+    scc_definition:
+      kind: SecurityContextConstraints
+      apiVersion: v1
+      metadata:
+        name: logging-elasticsearch
+        creationTimestamp: null
+      allowHostDirVolumePlugin: true
+      allowHostIPC: false
+      allowHostNetwork: false
+      allowHostPID: false
+      allowHostPorts: false
+      allowPrivilegedContainer: true
+      allowedCapabilities: null
+      defaultAddCapabilities: null
+      fsGroup:
+        type: MustRunAs
+        ranges:
+        - min: "{{ openshift_hosted_logging_elasticsearch_gid }}"
+          max: "{{ openshift_hosted_logging_elasticsearch_gid }}"
+      priority: null
+      readOnlyRootFilesystem: false
+      requiredDropCapabilities: null
+      runAsUser:
+        type: MustRunAsRange
+        uidRangeMin: "{{ openshift_hosted_logging_elasticsearch_uid }}"
+        uidRangeMax: "{{ openshift_hosted_logging_elasticsearch_uid }}"
+      seLinuxContext:
+        type: RunAsAny
+      seccompProfiles:
+      - '*'
+      supplementalGroups:
+        type: MustRunAs
+        ranges:
+        - min: "{{ openshift_hosted_logging_elasticsearch_gid }}"
+          max: "{{ openshift_hosted_logging_elasticsearch_gid }}"
+        # nfsnobody
+        - min: 65534
+          max: 65534
+      users:
+      - system:serviceaccount:logging:aggregated-logging-elasticsearch
+      volumes:
+      - '*'
+    current_scc: "{{ get_scc.stdout if get_scc.rc == 0 else '{}' | from_json }}"
+  when: >-
+    get_scc.rc != 0
+    or
+    current_scc != scc_definition | combine({"metadata":{"annotations": current_scc.metadata.annotations}}, recursive=True)
+
+- name: Get users with securitycontextconstraints logging-elasticsearch
+  command:
+    oc get securitycontextconstraints logging-elasticsearch
+    --template '{{ '{{ range .users }}{{ . }}{{ "\n" }}{{ end }}' }}'
+  register: get_scc_users
   changed_when: false
 
-- name: Add privileged scc to service account aggregated-logging-elasticsearch
-  command: >
-    oc adm policy add-scc-to-user privileged
+- name: Add aggregated-logging-elasticsearch service account to logging-elasticsearch SCC
+  command: >-
+    oc adm policy add-scc-to-user logging-elasticsearch
     system:serviceaccount:logging:aggregated-logging-elasticsearch
-  when: "'system:serviceaccount:logging:aggregated-logging-elasticsearch' not in get_securitycontextconstraints_privileged.stdout_lines"
-
+  when: "'system:serviceaccount:logging:aggregated-logging-elasticsearch' not in get_scc_users.stdout_lines"

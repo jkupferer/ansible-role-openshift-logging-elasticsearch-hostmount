@@ -20,11 +20,9 @@
   with_items: "{{ get_elasticsearch_nodes.stdout_lines }}"
 
 - name: Get list of elasticsearch nodes with hostmount
-  shell: >
+  command: >-
     oc get dc -n logging -l component=es
-    --template '{{ '{{ range .items }}{{ index .spec.template.spec.nodeSelector "kubernetes.io/hostname" }} {{ range .spec.template.spec.volumes }}{{ .hostPath.path }} {{ end }}{{ "\n" }}{{ end }}' }}'
-    | grep ' {{ openshift_metrics_cassandra_hostmount_path }}'
-    | sed 's/ .*//'
+    --template '{{ '{{ range .items }}{{ $hostname := index .spec.template.spec.nodeSelector "kubernetes.io/hostname" }}{{ if $hostname }}{{ range .spec.template.spec.volumes }}{{ if .hostPath.path }}{{ if eq .hostPath.path "' ~ openshift_hosted_logging_elasticsearch_hostmount_path ~ '" }}{{ $hostname }}{{ "\n" }}{{ end }}{{ end }}{{ end }}{{ end }}{{ end }}' }}'
   changed_when: false
   register: get_elasticsearch_nodes_with_hostmount
 
