@@ -37,3 +37,7 @@
 
   - name: Roll out new elasticsearch dc {{ elasticsearch_dc }}
     command: oc rollout latest -n logging {{ elasticsearch_dc }}
+    register: logging_es_dc_rollout
+    failed_when: >-
+      logging_es_dc_rollout.rc != 0 and
+      "already in progress" not in logging_es_dc_rollout.stdout

@@ -5,7 +5,7 @@ openshift_hosted_logging_elasticsearch_hostmount_path: /srv/openshift-hostmount-
 # Security settings on hostmount path
 openshift_hosted_logging_elasticsearch_hostmount_path_owner: 1000
 openshift_hosted_logging_elasticsearch_hostmount_path_group: 0
-openshift_hosted_logging_elasticsearch_hostmount_path_mode: u=rwx,g=rwx,o=
+openshift_hosted_logging_elasticsearch_hostmount_path_mode: ug=rwx,o=
 
 # Default nodeselector for elasticsearch
 openshift_hosted_logging_elasticsearch_nodeselector: region=elasticsearch

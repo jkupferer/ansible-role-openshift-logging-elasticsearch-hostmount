@@ -3,8 +3,13 @@
 - include: privileges.yml
 
 - name: Get nodes matching elasticsearch selector
-  command: >
-    oc get node -l {{ openshift_hosted_logging_elasticsearch_nodeselector }}
+  command: >-
+    oc get node
+    {% if openshift_logging_es_nodeselector is mapping %}
+    -l {% for k, v in openshift_logging_es_nodeselector.items() %}{{ k }}={{ v }}{% if not loop.last %}","{% endif %}{% endfor %}
+    {% else %}
+    -l {{ openshift_hosted_logging_elasticsearch_nodeselector }}
+    {% endif %}
     --template '{{ '{{ range .items }}{{ .metadata.name }}{{ "\n"}}{{ end }}' }}'
   changed_when: false
   register: get_elasticsearch_nodes
@@ -17,6 +22,7 @@
     owner: "{{ openshift_hosted_logging_elasticsearch_hostmount_path_owner }}"
     group: "{{ openshift_hosted_logging_elasticsearch_hostmount_path_group }}"
     mode: "{{ openshift_hosted_logging_elasticsearch_hostmount_path_mode }}"
+    setype: svirt_sandbox_file_t
   with_items: "{{ get_elasticsearch_nodes.stdout_lines }}"
 
 - name: Get list of elasticsearch nodes with hostmount

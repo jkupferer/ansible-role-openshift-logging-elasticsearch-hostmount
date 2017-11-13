@@ -21,24 +21,22 @@
       allowHostPID: false
       allowHostPorts: false
       allowPrivilegedContainer: true
-      allowedCapabilities: null
-      defaultAddCapabilities: null
+      allowedCapabilities: []
+      defaultAddCapabilities: []
       fsGroup:
         type: MustRunAs
         ranges:
         - min: "{{ openshift_hosted_logging_elasticsearch_gid }}"
           max: "{{ openshift_hosted_logging_elasticsearch_gid }}"
-      priority: null
+      priority: 99
       readOnlyRootFilesystem: false
-      requiredDropCapabilities: null
+      requiredDropCapabilities: []
       runAsUser:
         type: MustRunAsRange
         uidRangeMin: "{{ openshift_hosted_logging_elasticsearch_uid }}"
         uidRangeMax: "{{ openshift_hosted_logging_elasticsearch_uid }}"
       seLinuxContext:
-        type: RunAsAny
-      seccompProfiles:
-      - '*'
+        type: MustRunAs
       supplementalGroups:
         type: MustRunAs
         ranges:
@@ -50,7 +48,13 @@
       users:
       - system:serviceaccount:logging:aggregated-logging-elasticsearch
       volumes:
-      - '*'
+      - configMap
+      - downwardAPI
+      - emptyDir
+      - hostPath
+      - persistentVolumeClaim
+      - projected
+      - secret
     current_scc: "{{ get_scc.stdout if get_scc.rc == 0 else '{}' | from_json }}"
   when: >-
     get_scc.rc != 0
