@@ -40,4 +40,4 @@
     register: logging_es_dc_rollout
     failed_when: >-
       logging_es_dc_rollout.rc != 0 and
-      "already in progress" not in logging_es_dc_rollout.stdout
+      "already in progress" not in logging_es_dc_rollout.stderr
